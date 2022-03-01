@@ -7,12 +7,12 @@ import pandas as pd
 import urllib.parse
 
 TARGET_PATH = 'jobs3.csv'
-JOB_TITLE = 'Data Scientist'
-LOCATION = 'New York, NY'
-NUMBER_OF_SCRAPS = 50
+JOB_TITLE = 'Anything'
+LOCATION = 'United States'
+NUMBER_OF_SCRAPS = 10
 
 
-def extract(page, job_title_url_format, location_url_format):
+def extract(page=0, job_title_url_format='', location_url_format=''):
     """
     Extract html content from page number "page"
     :param location_url_format: string
@@ -38,25 +38,13 @@ def transform(soup, joblist):
     """
     divs = soup.find_all('div', class_='job_seen_beacon')
     for item in divs:
-        title = item.find('h2', class_='jobTitle').text
-        company = item.find('span', class_='companyName').text.strip()
-        location = item.find('div', class_='companyLocation').text.strip()
-        summary = item.find('div', {'class': 'job-snippet'}).text.strip()
-
-        try:
-            rating = item.find('span', class_='ratingNumber').text.strip()
-        except:
-            rating = "NAN"
-
-        try:
-            salary = item.find('div', class_='metadata salary-snippet-container').text.strip()
-        except:
-            salary = "NAN"
-
-        try:
-            job_type = item.find('div', class_='metadata').text.strip()
-        except:
-            job_type = "NAN"
+        title = get_job_title(item)
+        company = get_company_name(item)
+        location = get_job_location(item)
+        summary = get_job_summary(item)
+        rating = get_company_rating(item)
+        salary = get_job_salary(item)
+        job_type = get_job_type(item)
 
         job = {
             'title': title,
@@ -70,6 +58,77 @@ def transform(soup, joblist):
         joblist.append(job)
     return
 
+
+def get_job_title(item):
+    """Param: item in page's soup
+        returns the job title of the specific job offer if exists"""
+    try:
+        return item.find('h2', class_='jobTitle').text
+    except:
+        return 'Nan'
+
+
+def get_company_name(item):
+    """Param: item in page's soup
+        returns the name of the comapny of the specific job offer if exists"""
+    try:
+        return item.find('span', class_='companyName').text.strip()
+    except:
+        return 'Nan'
+
+
+def get_job_location(item):
+    """Param: item in page's soup
+            returns the location of the comapny of the specific job offer if exists"""
+    try:
+        return item.find('div', class_='companyLocation').text.strip()
+    except:
+        return 'Nan'
+
+
+def get_job_summary(item):
+    """Param: item in page's soup
+        returns the summary of the specific job offer if exists"""
+    try:
+        return item.find('div', {'class': 'job-snippet'}).text.strip()
+    except:
+        return 'Nan'
+
+
+def get_company_rating(item):
+    """Param: item in page's soup
+            returns the summary of the specific job offer if exists"""
+    try:
+        return item.find('span', class_='ratingNumber').text.strip()
+    except:
+        return 'Nan'
+
+
+def get_job_salary(item):
+    """Param: item in page's soup
+                returns the salary of the specific job offer if exists"""
+    try:
+        return item.find('div', class_='metadata salary-snippet-container').text.strip()
+    except:
+        return 'Nan'
+
+
+def get_job_type(item):
+    """Param: item in page's soup
+                    returns the job type of the specific job offer if exists"""
+    try:
+        return item.find('div', class_='metadata').text.strip()
+    except:
+        return 'Nan'
+
+
+def get_link_to_full_description(item):
+    """Param: item in page's soup
+                        returns the job type of the specific job offer if exists"""
+    try:
+        return item.find('div', class_='metadata').text.strip()
+    except:
+        return 'Nan'
 
 def main():
     # Convert Input to URL type
@@ -86,6 +145,7 @@ def main():
     print(df.head())
     df.to_csv(TARGET_PATH)
     print(f"Scrapping completed successfully: {df.shape[0]} imported")
+
 
 
 if __name__ == '__main__':
