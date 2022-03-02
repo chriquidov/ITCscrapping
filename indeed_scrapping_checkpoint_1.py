@@ -1,17 +1,30 @@
-"""
-Web Scraping for Indeed.com; Returns  jobs and their meta-data
-"""
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import urllib.parse
 from urllib.parse import urljoin
+import re
+from tqdm import tqdm
 
+"""
+Web Scraping for Indeed.com; Returns  jobs and their meta-data
+"""
 
+SAMPLE_URL = f'https://www.indeed.com/'
 TARGET_PATH = 'jobs3.csv'
 JOB_TITLE = 'data scientist'
 LOCATION = 'United States'
-NUMBER_OF_SCRAPS = 10
+HEADERS = {
+    'User-Agent': 'Windows 10/ Edge browser: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246'
+}
+
+
+def require_number_of_scraps():
+    """Request from the user a valid number of job offer to scrap"""
+    number_of_scraps = -1
+    while (type(number_of_scraps) != int) or number_of_scraps < 1:
+        number_of_scraps = int(input('Please enter the minimum number of job offer you want to scrap:'))
+    return number_of_scraps
 
 
 def extract(page=0, job_title_url_format='', location_url_format=''):
@@ -22,11 +35,8 @@ def extract(page=0, job_title_url_format='', location_url_format=''):
     :param page: integer (multiple of 10)
     :return: soup object
     """
-    headers = {
-        'User-Agent': 'Windows 10/ Edge browser: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246'
-    }
     url = f'https://www.indeed.com/jobs?q={job_title_url_format}&l={location_url_format}&start={page}'
-    r = requests.get(url, headers)
+    r = requests.get(url, HEADERS)
     soup = BeautifulSoup(r.content, 'html.parser')
     return soup
 
@@ -38,9 +48,9 @@ def transform(soup, joblist):
     :param soup: soup object
     :return: soup object
     """
-    link_list=get_link_to_full_description(soup)
+    link_list = get_link_to_full_description(soup)
     divs1 = soup.find_all('div', class_='job_seen_beacon')
-    for i,item in enumerate(divs1):
+    for i, item in enumerate(divs1):
         title = get_job_title(item)
         company = get_company_name(item)
         location = get_job_location(item)
@@ -48,7 +58,7 @@ def transform(soup, joblist):
         rating = get_company_rating(item)
         salary = get_job_salary(item)
         job_type = get_job_type(item)
-        link= link_list[i]
+        link = link_list[i]
         job = {
             'title': title,
             'company': company,
@@ -57,7 +67,7 @@ def transform(soup, joblist):
             'salary': salary,
             'job_type': job_type,
             'summary': summary,
-            'link':link
+            'link': link
         }
         joblist.append(job)
     return
@@ -112,7 +122,14 @@ def get_job_salary(item):
     """Param: item in page's soup
          returns the salary of the specific job offer if exists"""
     try:
-        return item.find('div', class_='metadata salary-snippet-container').text.strip()
+        coeff = 1
+        salary = item.find('div', class_='metadata salary-snippet-container').text.strip()
+        res = int(re.search(r'(\d+,?\d*)', salary).group(0).replace(",", ""))
+        if "year" in salary: coeff = 1
+        if "month" in salary: coeff = 12
+        if "hour" in salary: coeff = 12 * 176
+        salary = coeff * res
+        return salary
     except:
         return 'Nan'
 
@@ -121,41 +138,40 @@ def get_job_type(item):
     """Param: item in page's soup
          returns the job type of the specific job offer if exists"""
     try:
-        return item.find('div', class_='metadata').text.strip()
+        return item.find(lambda tag: tag.name == 'div' and tag.get('class') == ["metadata"]).text.strip()
     except:
         return 'Nan'
 
 
 def get_link_to_full_description(soup):
     """Param: receives the soup of the page, returns a list of the links to the job offers full description """
-    job_column = soup.find('div', class_='mosaic-provider-jobcards') #gets the column of the job offers
-    url = f'https://www.indeed.com/' #TODO: Find a way to make one url and put in as magic number!
-    link_list=[]
-    for i in job_column.find_all('a'): # loop over all the a's in the column
+    job_column = soup.find('div', class_='mosaic-provider-jobcards')  # gets the column of the job offers
+    link_list = []
+    for i in job_column.find_all('a'):
         try:
-            if i.attrs['id']: # If id is provided it means the a contains info about a job offer and a relative link to the job offer
-                abs_path=urljoin(url, i.get('href')) # Gets the link from the a and creates an absolute path to the job offer detailed description
+            if i.attrs['id']:
+                abs_path = urljoin(SAMPLE_URL, i.get('href'))
                 link_list.append(abs_path)
         except:
             pass
     return link_list
 
+
 def main():
     # Convert Input to URL type
     job_title_url_format = urllib.parse.quote(JOB_TITLE, safe='')
     location_url_format = urllib.parse.quote(LOCATION, safe='')
-    number_of_scrap_conv = (NUMBER_OF_SCRAPS // 15 +1 ) * 10
+    number_of_scrap_conv = (require_number_of_scraps() // 15 + 1) * 10
 
     joblist = []
-    for i in range(0, number_of_scrap_conv, 10):
+    for i in tqdm(range(0, number_of_scrap_conv, 10)):
         c = extract(i, job_title_url_format, location_url_format)
         transform(c, joblist)
 
     df = pd.DataFrame(joblist)
-    print(df.head())
-    df.to_csv(TARGET_PATH)
-    print(f"Scrapping completed successfully: {df.shape[0]} imported")
-
+    print('Here are a few exemple of the scrapped data\n', df.head())
+    df.to_csv(TARGET_PATH, encoding='utf-8')
+    print(f"Scrapping completed successfully: {df.shape[0]} imported to {TARGET_PATH}")
 
 
 if __name__ == '__main__':
