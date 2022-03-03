@@ -5,13 +5,15 @@ import urllib.parse
 from urllib.parse import urljoin
 import re
 from tqdm import tqdm
+import time
+import conf
 
 """
 Web Scraping for Indeed.com; Returns  jobs and their meta-data
 """
 
 SAMPLE_URL = f'https://www.indeed.com/'
-TARGET_PATH = 'jobs3.csv'
+FILENAME = 'jobs-'
 JOB_TITLE = 'data scientist'
 LOCATION = 'United States'
 HEADERS = {
@@ -23,7 +25,7 @@ def require_number_of_scraps():
     """Request from the user a valid number of job offer to scrap"""
     number_of_scraps = -1
     while (type(number_of_scraps) != int) or number_of_scraps < 1:
-        number_of_scraps = int(input('Please enter the minimum number of job offer you want to scrap:'))
+        number_of_scraps = int(input('Please enter the minimum number of job offer you want to scrap: \n'))
     return number_of_scraps
 
 
@@ -36,7 +38,7 @@ def extract(page=0, job_title_url_format='', location_url_format=''):
     :return: soup object
     """
     url = f'https://www.indeed.com/jobs?q={job_title_url_format}&l={location_url_format}&start={page}'
-    r = requests.get(url, HEADERS)
+    r = requests.get(url, conf.HEADERS)
     soup = BeautifulSoup(r.content, 'html.parser')
     return soup
 
@@ -150,7 +152,7 @@ def get_link_to_full_description(soup):
     for i in job_column.find_all('a'):
         try:
             if i.attrs['id']:
-                abs_path = urljoin(SAMPLE_URL, i.get('href'))
+                abs_path = urljoin(conf.SAMPLE_URL, i.get('href'))
                 link_list.append(abs_path)
         except:
             pass
@@ -159,19 +161,23 @@ def get_link_to_full_description(soup):
 
 def main():
     # Convert Input to URL type
-    job_title_url_format = urllib.parse.quote(JOB_TITLE, safe='')
-    location_url_format = urllib.parse.quote(LOCATION, safe='')
+    job_title_url_format = urllib.parse.quote(conf.JOB_TITLE, safe='')
+    location_url_format = urllib.parse.quote(conf.LOCATION, safe='')
     number_of_scrap_conv = (require_number_of_scraps() // 15 + 1) * 10
 
+    print("Scrapping in progress...\n Number of pages being scrapped")
     joblist = []
     for i in tqdm(range(0, number_of_scrap_conv, 10)):
         c = extract(i, job_title_url_format, location_url_format)
         transform(c, joblist)
 
+    timestr = time.strftime("%y%m%d_%H%M")
+    target_path = conf.FILENAME + timestr + ".csv"
+
     df = pd.DataFrame(joblist)
     print('Here are a few exemple of the scrapped data\n', df.head())
-    df.to_csv(TARGET_PATH, encoding='utf-8')
-    print(f"Scrapping completed successfully: {df.shape[0]} imported to {TARGET_PATH}")
+    df.to_csv(target_path, encoding='utf-8')
+    print(f"Scrapping completed successfully: {df.shape[0]} jobs imported to {target_path}")
 
 
 if __name__ == '__main__':
