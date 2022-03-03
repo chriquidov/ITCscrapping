@@ -33,7 +33,7 @@ Note: we intend to add more information about the job offer that we will gather 
 ---
 The repository contains a requirements.txt file in which one can find the required packages to be able to pu to work the scrapping. 
 Once the repository cloned, running the ```indeed_scrapping_checkpoint_1.py```, the user is required to provide a minimum number of job offers to scrape, once done the program displays the first five rows of the created dataset. 
-
+*If the number of jobs specified is more than the avaiòable job offers the maximum available will be returned*
 
 Example of use: 
 ```bash
