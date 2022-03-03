@@ -42,10 +42,10 @@ Example of use:
 500
 ```
 
- *Roadmap*
+ ## Roadmap
 This is the first of four checkpoints in total. 
 
-*Authors and acknowledgement* 
+## Authors and acknowledgement 
 The authors of this web scraper are Dov Chriqui and Samuel Nataf.
 It is part of the Israel Tech Challenge first project.
 
