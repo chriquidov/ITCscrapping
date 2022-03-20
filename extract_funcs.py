@@ -35,6 +35,3 @@ def extract_companies_soup(comp_link_list):
         except AttributeError:
             soups[comp_link_list[i]['name']] = None
     return soups
-
-
-

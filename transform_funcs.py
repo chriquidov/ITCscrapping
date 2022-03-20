@@ -1,8 +1,7 @@
 import re
 from urllib.parse import urljoin
-import conf
 from tqdm import tqdm
-import json
+import conf
 
 """Functions that turns the soups in the data we require"""
 
@@ -20,10 +19,11 @@ def isfloat(num):
         return False
 
 
-def transform_job_offers(soup, joblist, comp_link_list,job_title):
+def transform_job_offers(soup, joblist, comp_link_list, job_title):
     """
     Extract html content from page number "page"
-    :param comp_link_list: list of the dictionnaries of the companies info
+    :param job_title: the job title searched by the user
+    :param comp_link_list: list of the dictionaries of the companies' info
     :param joblist: list
     :param soup: soup object
     :appends to the job list and comp_link_dict
@@ -180,10 +180,10 @@ def get_comp_stat(soup):
     for i in li_conts:
         try:
             if isfloat(i.find('div', class_="css-r228jg eu4oa1w0").text):
-                comp[i['data-tn-element']] = float(i.find('div', class_="css-r228jg eu4oa1w0").text)
+                comp[i['data-tn-element']] = int(i.find('div', class_="css-r228jg eu4oa1w0").text)
             else:
-                comp[i['data-tn-element']] = float(
-                    i.find('div', class_="css-r228jg eu4oa1w0").text.replace('K', '').replace('M', '')) * 1000
+                comp[i['data-tn-element']] = int(float(
+                    i.find('div', class_="css-r228jg eu4oa1w0").text.replace('K', '').replace('M', '')) * 1000)
 
         except AttributeError:
             pass
@@ -197,8 +197,9 @@ def get_comp_hapiness(soup):
     :return: dictionnary of the found elements
     """
     comp_hapiness = {
-        'Work Hapiness Score': int(soup.find('span', class_="css-s5cg6m e1wnkr790").text )}
+        'Work Hapiness Score': int(soup.find('span', class_="css-s5cg6m e1wnkr790").text)}
     return comp_hapiness
+
 
 def get_about_comp(soup):
     """
