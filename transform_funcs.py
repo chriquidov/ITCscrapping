@@ -20,7 +20,7 @@ def isfloat(num):
         return False
 
 
-def transform_job_offers(soup, joblist, comp_link_list):
+def transform_job_offers(soup, joblist, comp_link_list,job_title):
     """
     Extract html content from page number "page"
     :param comp_link_list: list of the dictionnaries of the companies info
@@ -46,6 +46,7 @@ def transform_job_offers(soup, joblist, comp_link_list):
         company_link = get_company_link(item)
         job = {
             'title': title,
+            'searched_title': job_title,
             'company': company,
             'location': location,
             'salary': salary,
@@ -195,18 +196,8 @@ def get_comp_hapiness(soup):
     :param soup: soup of the company's webpage
     :return: dictionnary of the found elements
     """
-    comp_hapiness = {}
-
-    scripts = soup.find_all('script')
-    for i in scripts:
-        if 'window._initialData' in i.text:
-            data = i.text
-    data=data[data.find('{'):-data[::-1].find('}')]
-    data=data.replace('\\','')
-    print(data)
-    data = json.loads(data)
-    for el in data['happinessModule']['individualRatings']:
-        comp_hapiness[el['category']] = el['score']
+    comp_hapiness = {
+        'Work Hapiness Score': int(soup.find('span', class_="css-s5cg6m e1wnkr790").text )}
     return comp_hapiness
 
 def get_about_comp(soup):

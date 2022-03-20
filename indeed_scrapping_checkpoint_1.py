@@ -50,7 +50,7 @@ def main():
     comp_list, joblist = [], []
     soup_list_jobs = extract(number_of_scrap_conv, job_title_url_format, location_url_format)
     for soup in tqdm(soup_list_jobs):
-        transform_job_offers(soup, joblist, comp_list)
+        transform_job_offers(soup, joblist, comp_list,job_title)
 
     soup_companies = extract_companies_soup(comp_list)
     transform_comp_soups(soup_companies, comp_list)
@@ -58,16 +58,16 @@ def main():
     timestr = time.strftime("%y%m%d_%H%M")
     dir_path = os.path.dirname(os.path.realpath(__file__))
 
-    jobs_df = pd.DataFrame(joblist)
-    print('Here are a few exemple of the scrapped data\n', jobs_df.head())
-    jobs_df.to_csv(dir_path+'\\'+conf.JOBS_FILENAME + ".csv", encoding='utf-8')
-    print(f"Scrapping completed successfully: {jobs_df.shape[0]} jobs imported ")
+    # jobs_df = pd.DataFrame(joblist)
+    # print('Here are a few exemple of the scrapped data\n', jobs_df.head())
+    # jobs_df.to_csv(dir_path+'\\'+conf.JOBS_FILENAME + ".csv", encoding='utf-8')
+    print(f"Scrapping completed successfully: {len(joblist)} jobs imported ")
 
-    comp_df = pd.DataFrame(comp_list)
-    comp_df.to_csv(f'{dir_path}\\companies.csv')
-    print('Here are a few exemple of the scrapped data\n', comp_df.head())
-    print(f"Scrapping completed successfully: {comp_df.shape[0]} companies imported ")
-    #update_mysql_db(job_list=joblist,company_list=comp_list)
+    # comp_df = pd.DataFrame(comp_list)
+    # comp_df.to_csv(f'{dir_path}\\companies.csv')
+    # print('Here are a few exemple of the scrapped data\n', comp_df.head())
+    print(f"Scrapping completed successfully: {len(comp_list)} companies imported ")
+    update_mysql_db(job_list=joblist,company_list=comp_list)
 
 if __name__ == '__main__':
     main()
