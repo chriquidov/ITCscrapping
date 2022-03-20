@@ -7,11 +7,11 @@
 
 ## Project purpose 
 ---
-In this project we tried to extract as much data as possible from the website [Indeed](https://www.indeed.com/jobs?q=Data%20Scientist&l=United%20States&vjk=92ecfcf3e426868a), in which one can find a big amount of job offers, including lots of information regarding the job.
+In this project we tried to extract as much data as possible from the website [Indeed](https://www.indeed.com/jobs?q=Data%20Scientist&l=United%20States&vjk=92ecfcf3e426868a), in which one can find a big amount of job offers, including lots of information regarding his own profession.
 
 ## Results
 ---
-The Scrapper is now able to be work from the command line, scrapping:
+The Scrapper is now able to be worked from the command line, scrapping:
 - Job offers corresponding to a specific title entered by the user, scrapping the number of job offers required by the user
 
  ### 1. Information gathered for each job offer:
@@ -50,7 +50,7 @@ These informations are stocked into a Mysql database, in different tables as sho
 ---
 #### 1. Running the program 
 The repository contains a requirements.txt file in which one can find the required packages to be able to put to work the scrapping. 
-Once the repository cloned, running the ```indeed_scrapping_checkpoint_1.py``` from the command line where the user is required to provide a job title and a minimum number of job offers to scrape, the user can also add a location, so that the scrapper will look for job offers in a specific location, if a location is not given, the default location is 'United States' once done the program displays a summary of the number of job offers 6 companies data scrapped as well as a log of the events that occured during the creation/update of the database. 
+Once the repository cloned, running the ```indeed_scrapping_checkpoint_1.py``` from the command line where the user is required to provide a job title and a minimum number of job offers to scrape, the user can also add a location, so that the scrapper will look for job offers in a specific location, if a location is not given, the default location is 'United States' once done the program displays a summary of the number of job offers and companies data scrapped as well as a log of the events that occured during the creation/update of the database. 
 *If the number of jobs specified is more than the avaiòable job offers the maximum available will be returned*
 
 Example of use: 
@@ -60,13 +60,13 @@ Example of use:
 *In this case the program will scrape the data for at least 50 data scientist job offers in the US* 
 
 #### 2. Creation of the MYSQL database
-In order to get the data stored in a proper database, the user needs to install mysql, create a user name and a password, by default the program does only require the user to enter it's password the first time in order to create the 'indeed_db' that contains all the discussed data. If the user made special configurations, he's invited to modify the ```db_parameters.py``` file in order to make sure the connection with Mysql is made and the DB can be created.
+In order to get the data stored in a proper database, the user needs to install mysql, create a user name and a password, by default the program allocates the following as default: 'DATABASE_USER': 'root','DATABASE_PASSWORD': "pass",'DATABASE_PORT': '3306',"DATABASE_NAME": 'indeed_db','DATABASE_HOST': 'localhost'. If the user has made a different configuration, he's invited to modify the ```db_parameters.py``` file in order to make sure the connection with Mysql is made and the Data Base can be created.
 
  ## Roadmap
 This is the second of four checkpoints in total. 
 
 ## Authors and acknowledgement 
-The authors of this web scraper are Dov Chriqui and Samuel Nataf (le frère).
+The authors of this web scraper are Dov Chriqui and Samuel Nataf.
 It is part of the Israel Tech Challenge first project.
 
 
