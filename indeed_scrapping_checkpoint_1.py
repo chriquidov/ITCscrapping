@@ -54,14 +54,10 @@ def main():
     transform_comp_soups(soup_companies, comp_list)
 
     print(f"Scrapping completed successfully: {len(joblist)} jobs imported ")
-    jobs_df = pd.DataFrame(joblist)
-    jobs_df.to_csv('jobs.csv')
-    comp_df = pd.DataFrame(comp_list)
-    comp_df.to_csv('companies.csv')
-
     print(f"Scrapping completed successfully: {len(comp_list)} companies imported ")
-    # update_mysql_db(job_list=joblist, company_list=comp_list)
-    
+
+    update_mysql_db(job_list=joblist, company_list=comp_list)
+
 
 
 if __name__ == '__main__':

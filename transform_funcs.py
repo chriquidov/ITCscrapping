@@ -197,7 +197,7 @@ def get_comp_hapiness(soup):
     :return: dictionnary of the found elements
     """
     comp_hapiness = {
-        'Work Hapiness Score': int(soup.find('span', class_="css-s5cg6m e1wnkr790").text)}
+        'Work Happiness Score': int(soup.find('span', class_="css-s5cg6m e1wnkr790").text)}
     return comp_hapiness
 
 
