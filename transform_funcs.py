@@ -2,7 +2,7 @@ import re
 from urllib.parse import urljoin
 import conf
 from tqdm import tqdm
-
+import json
 
 """Functions that turns the soups in the data we require"""
 
@@ -52,14 +52,14 @@ def transform_job_offers(soup, joblist, comp_link_list):
             'job_type': job_type,
             'summary': summary,
             'link_job': link,
-            'company_link': company_link
+            'indeed_company_link': company_link
         }
         joblist.append(job)
 
-        if not any(d['indeed_link'] == company_link for d in comp_link_list):
-            comp_dict= {
-                'name':company,
-                'indeed_link': company_link,
+        if not any(d['indeed_company_link'] == company_link for d in comp_link_list):
+            comp_dict = {
+                'name': company,
+                'indeed_company_link': company_link,
                 'rating': rating
             }
             comp_link_list.append(comp_dict)
@@ -153,7 +153,7 @@ def get_link_to_full_description(soup):
             if i.attrs['id']:
                 abs_path = urljoin(conf.SAMPLE_URL, i.get('href'))
                 link_list.append(abs_path)
-        except (KeyError,AttributeError):
+        except (KeyError, AttributeError):
             pass
     return link_list
 
@@ -161,11 +161,10 @@ def get_link_to_full_description(soup):
 def get_company_link(item):
     """Given the :item: in the job offer, returns the link of the company offering if exists"""
     try:
-        comp_link=item.find('a',class_="turnstileLink companyOverviewLink",href=True).get('href')
-        return urljoin(conf.SAMPLE_URL,comp_link)
+        comp_link = item.find('a', class_="turnstileLink companyOverviewLink", href=True).get('href')
+        return urljoin(conf.SAMPLE_URL, comp_link)
     except AttributeError:
         return None
-
 
 
 def get_comp_stat(soup):
@@ -174,15 +173,16 @@ def get_comp_stat(soup):
     :param soup: soup of a company's indeed page
     :return: Dict of Found numbers of reviews, salaries etc. on the comapny
     """
-    comp={}
+    comp = {}
 
-    li_conts=soup.find_all('li', class_="css-tz4lm4 eu4oa1w0")
+    li_conts = soup.find_all('li', class_="css-tz4lm4 eu4oa1w0")
     for i in li_conts:
         try:
-            if isfloat(i.find('div',class_="css-r228jg eu4oa1w0").text):
-                comp[i['data-tn-element']]=float(i.find('div',class_="css-r228jg eu4oa1w0").text)
+            if isfloat(i.find('div', class_="css-r228jg eu4oa1w0").text):
+                comp[i['data-tn-element']] = float(i.find('div', class_="css-r228jg eu4oa1w0").text)
             else:
-                comp[i['data-tn-element']]=float(i.find('div', class_="css-r228jg eu4oa1w0").text.replace('K','').replace('M',''))*1000
+                comp[i['data-tn-element']] = float(
+                    i.find('div', class_="css-r228jg eu4oa1w0").text.replace('K', '').replace('M', '')) * 1000
 
         except AttributeError:
             pass
@@ -192,16 +192,22 @@ def get_comp_stat(soup):
 def get_comp_hapiness(soup):
     """
     Takes available information about the company's Hapiness degrees
-    :param soup:
+    :param soup: soup of the company's webpage
     :return: dictionnary of the found elements
     """
     comp_hapiness = {}
 
-    hp_case=soup.find_all('div', class_="css-pnxt15 eu4oa1w0")
-    for i in hp_case:
-        comp_hapiness[i.find('div', class_="css-19akx1r e1wnkr790").text]=int(i.find('div', class_="css-zlzlxd eu4oa1w0").text)
+    scripts = soup.find_all('script')
+    for i in scripts:
+        if 'window._initialData' in i.text:
+            data = i.text
+    data=data[data.find('{'):-data[::-1].find('}')]
+    data=data.replace('\\','')
+    print(data)
+    data = json.loads(data)
+    for el in data['happinessModule']['individualRatings']:
+        comp_hapiness[el['category']] = el['score']
     return comp_hapiness
-
 
 def get_about_comp(soup):
     """
@@ -210,41 +216,41 @@ def get_about_comp(soup):
     :return: dictionnary of found parameters
     """
     about_comp = {}
-    comp_size={'5,001 to 10,000':5001,'more than 10,000':10001,'1001 to 5,000':1001, '501 to 1,000': 501}
-    comp_revenues={'more than $10B (USD)':10000000000,
-                    '$100M to $500M (USD)':100000000,
-                    '$5B to $10B (USD)':5000000000,
-                    'less than $1M (USD)':900000,
-                    '$1B to $5B (USD)':1000000000,
-                    '$1M to $5M (USD)':1000000,
-                    '$500M to $1B (USD)':500000000,
-                   '$5M to $25M (USD)': 5000000
-                    }
+    comp_size = {'5,001 to 10,000': 5001, 'more than 10,000': 10001, '1001 to 5,000': 1001, '501 to 1,000': 501}
+    comp_revenues = {'more than $10B (USD)': 10000000000,
+                     '$100M to $500M (USD)': 100000000,
+                     '$5B to $10B (USD)': 5000000000,
+                     'less than $1M (USD)': 900000,
+                     '$1B to $5B (USD)': 1000000000,
+                     '$1M to $5M (USD)': 1000000,
+                     '$500M to $1B (USD)': 500000000,
+                     '$5M to $25M (USD)': 5000000
+                     }
     # Find about table
     try:
         about = soup.find('ul', class_="css-1vd66n9 e37uo190")
         # add CEO name and approval rate
         about_comp[about.find('span', class_="css-3j50sk e1wnkr790").text] = about.find('span',
                                                                                         class_="css-1w0iwyp e1wnkr790").text
-        about_comp['Approved'] = int(about.find('span', class_="css-4oitjw e1wnkr790").text.replace('%',''))
+        about_comp['Approved'] = int(about.find('span', class_="css-4oitjw e1wnkr790").text.replace('%', ''))
         # add other elements
         for i in about.find_all('li', class_="css-ion97 e37uo190"):
             if i.find('div', class_="css-18pwhsj e1wnkr790").text == 'Founded':
                 about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = int(i.find('div',
-                                                                                        class_="css-1w0iwyp e1wnkr790").text)
+                                                                                            class_="css-1w0iwyp e1wnkr790").text)
             elif i.find('div', class_="css-18pwhsj e1wnkr790").text == 'Company size':
-                if i.find('div',class_="css-1w0iwyp e1wnkr790").text in comp_size:
-                   about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] =comp_size[i.find('div',
-                                                                                            class_="css-1w0iwyp e1wnkr790").text]
+                if i.find('div', class_="css-1w0iwyp e1wnkr790").text in comp_size:
+                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = comp_size[i.find('div',
+                                                                                                      class_="css-1w0iwyp e1wnkr790").text]
                 else:
-                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text]=-999999
+                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = -999999
 
             elif i.find('div', class_="css-18pwhsj e1wnkr790").text == 'Revenue':
-                if i.find('div',class_="css-1w0iwyp e1wnkr790").text in comp_revenues.keys():
-                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] =comp_revenues[i.find('div',
-                                                                                            class_="css-1w0iwyp e1wnkr790").text]
+                if i.find('div', class_="css-1w0iwyp e1wnkr790").text in comp_revenues.keys():
+                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = comp_revenues[i.find('div',
+                                                                                                          class_="css-1w0iwyp e1wnkr790").text]
                 else:
-                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text]=-999999
+                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = -999999
 
             elif i.find('div', class_="css-18pwhsj e1wnkr790").text == 'Link':
                 link = i.find('div', class_="css-1w0iwyp e1wnkr790")
@@ -252,7 +258,7 @@ def get_about_comp(soup):
 
             else:
                 about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = i.find('div',
-                                                                                            class_="css-1w0iwyp e1wnkr790").text
+                                                                                        class_="css-1w0iwyp e1wnkr790").text
     except AttributeError:
         pass
     return about_comp
@@ -267,7 +273,7 @@ def transform_comp_soups(soup_companies, comp_link_list):
     """
     print('Extracting data from companies soups')
 
-    for i,soup in enumerate(tqdm(soup_companies.values())):
+    for i, soup in enumerate(tqdm(soup_companies.values())):
         try:
             comp_link_list[i].update(get_comp_stat(soup))
             comp_link_list[i].update(get_comp_hapiness(soup))

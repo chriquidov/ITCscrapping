@@ -26,7 +26,7 @@ def extract_companies_soup(comp_link_list):
     :param comp_link_list: list of the url of the indeed page of the companies
     :return: list of soups of these pages
     """
-    rs = (grequests.get(i['indeed_link']) for i in comp_link_list)
+    rs = (grequests.get(i['indeed_company_link']) for i in comp_link_list)
     requests = grequests.map(rs)
     soups = {}
     for i, response in enumerate(requests):

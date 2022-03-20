@@ -7,6 +7,8 @@ import os
 import argparse
 from extract_funcs import extract, extract_companies_soup
 from transform_funcs import transform_comp_soups, transform_job_offers
+from update_mysql_db import update_mysql_db
+
 """
 Web Scraping for Indeed.com; Returns  jobs and their meta-data
 """
@@ -45,13 +47,13 @@ def main():
     number_of_scrap_conv = (nb_scraps // 15 + 1) * 10
 
     print("Scrapping in progress...\n Number of pages being scrapped")
-    comp_link_list, joblist = [], []
+    comp_list, joblist = [], []
     soup_list_jobs = extract(number_of_scrap_conv, job_title_url_format, location_url_format)
     for soup in tqdm(soup_list_jobs):
-        transform_job_offers(soup, joblist, comp_link_list)
+        transform_job_offers(soup, joblist, comp_list)
 
-    soup_companies = extract_companies_soup(comp_link_list)
-    transform_comp_soups(soup_companies, comp_link_list)
+    soup_companies = extract_companies_soup(comp_list)
+    transform_comp_soups(soup_companies, comp_list)
 
     timestr = time.strftime("%y%m%d_%H%M")
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -61,11 +63,11 @@ def main():
     jobs_df.to_csv(dir_path+'\\'+conf.JOBS_FILENAME + ".csv", encoding='utf-8')
     print(f"Scrapping completed successfully: {jobs_df.shape[0]} jobs imported ")
 
-    comp_df = pd.DataFrame(comp_link_list)
+    comp_df = pd.DataFrame(comp_list)
     comp_df.to_csv(f'{dir_path}\\companies.csv')
     print('Here are a few exemple of the scrapped data\n', comp_df.head())
     print(f"Scrapping completed successfully: {comp_df.shape[0]} companies imported ")
-
+    #update_mysql_db(job_list=joblist,company_list=comp_list)
 
 if __name__ == '__main__':
     main()
