@@ -1,5 +1,8 @@
 SAMPLE_URL = f'https://www.indeed.com/'
-FILENAME = 'jobs-'
+JOBS_FILENAME = 'jobs_'
+COMP_STAT_FILENAME = 'comp_stat_'
+COMP_HAPPY_FILENAME = 'comp_happyness_'
+COMP_OVERVIEW_FILENAME = 'comp_overview_'
 JOB_TITLE = 'data scientist'
 LOCATION = 'United States'
 HEADERS = {
