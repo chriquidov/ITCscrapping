@@ -44,7 +44,7 @@ The Scrapper is now able to be work from the command line, scrapping:
 
 ### 3. MYSQL Database
 These informations are stocked into a Mysql database, in different tables as shown in the schema below
-
+![N|Solid](https://github.com/chriquidov/ITCscrapping/blob/main/ERM_DB.png?raw=true)
 
 ## Instructions 
 ---
