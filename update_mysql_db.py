@@ -109,7 +109,7 @@ def update_mysql_db(job_list, company_list):
                    ",revenue='%s',industry='%s',company_link='%s')>" % (
                        self.id, self.name, self.indeed_company_link, self.rating, self.reviews_number,
                        self.salaries_number,
-                       self.jobs_number, self.qna_number,  self.photos_number,
+                       self.jobs_number, self.qna_number, self.photos_number,
                        self.work_happiness_score,
                        self.ceo, self.approved_percentage, self.founded_year, self.size, self.revenue, self.industry,
                        self.company_link)
@@ -118,6 +118,7 @@ def update_mysql_db(job_list, company_list):
         __tablename__ = "Job"
 
         id = Column(Integer, nullable=False, primary_key=True)
+        searched_title = Column(String(100), nullable=False)
         title = Column(String(100), nullable=False)
         summary = Column(VARCHAR(2048))  ##todo check type
         indeed_company_link = Column(VARCHAR(2048))
@@ -161,10 +162,43 @@ def update_mysql_db(job_list, company_list):
     from sqlalchemy.orm.exc import NoResultFound
     # ...
     num_duplicates_job = 0
-    num_added_company=0
+    num_added_company = 0
     num_duplicates_company = 0
-    num_added_job=0
+    num_added_job = 0
+    num_updated_company=0
 
+    def get_or_create_company(model, **kwargs):
+        """
+        Usage:
+        class Employee(Base):
+            __tablename__ = 'employee'
+            id = Column(Integer, primary_key=True)
+            name = Column(String, unique=True)
+
+        get_or_create(Employee, name='bob')
+        """
+        instance_unique_link = get_instance(model, kwargs[1])
+        instance = get_instance(model, **kwargs)
+
+        instance_unique_link_id=get_instance(model.id, kwargs[1])[0]
+        #
+        # session.query(Company.id).filter_by(indeed_company_link=j_dict.get("indeed_company_link")).first()[0]
+
+        # if instance of the unique link(company_indeed_link) doesn't exist -> create new entry
+        if instance_unique_link is None:
+            instance = create_instance(model, **kwargs)
+            data_in_db = 0
+
+        else:
+            # if the full instance of the company has at least one different parameter -> update existing entry
+            if instance is None:
+                session.query(model).filter(model.id == instance_unique_link_id).update(kwargs)
+                data_in_db = 2
+            # if the full instance is exactly the same -> skip
+            else:
+                data_in_db = 1
+
+        return instance, data_in_db
 
     def get_or_create(model, **kwargs):
         """
@@ -186,6 +220,7 @@ def update_mysql_db(job_list, company_list):
 
         return instance, data_in_db
 
+
     def create_instance(model, **kwargs):
         """create instance"""
         try:
@@ -193,10 +228,10 @@ def update_mysql_db(job_list, company_list):
             session.add(instance)
             session.flush()
         except Exception as msg:
-            mtext = 'model:{}, args:{} => msg:{}'
-            # log.error(mtext.format(model, kwargs, msg))
+            # mtext = 'model:{}, args:{} => msg:{}'
+            # log.error(mtext.format(model, kwargs, msg))## todo when log in place
             session.rollback()
-            raise (msg)
+            raise msg
         return instance
 
     def get_instance(model, **kwargs):
@@ -207,36 +242,42 @@ def update_mysql_db(job_list, company_list):
             return
 
     # 3.2 Inserting Companies
+
+    # Initiate a Company instance with no detail (id=1) in case a job has no detail link to
+    # the company in Indeed website, in case this item is already present in the database, skip
     try:
         comp_1 = session.query(Company.id).filter_by(id=1).first()[0]
     except TypeError:  ### todo check
         company = Company(id=1, name="No Company detail")
         session.add(company)
 
+    # Populate the new companies only, according to scrapped company dictionary
     for c_dict in company_list:  # todo replace companies_dict
-        company, data_in_db = get_or_create(model=Company, name=c_dict.get("name"),
-                                        indeed_company_link=c_dict.get("indeed_company_link"),
-                                        rating=c_dict.get("rating"),
-                                        reviews_number=c_dict.get('reviews-tab'),
-                                        salaries_number=c_dict.get('salaries-tab'),
-                                        jobs_number=c_dict.get('jobs-tab'),
-                                        qna_number=c_dict.get('qna-tab'),
-                                        photos_number=c_dict.get('photos-tab'),
-                                        work_happiness_score=c_dict.get('Work Happiness Score'),
-                                        ceo=c_dict.get("CEO"),
-                                        approved_percentage=c_dict.get("Approved"),
-                                        founded_year=c_dict.get("Founded"),
-                                        size=c_dict.get("Company size"),
-                                        revenue=c_dict.get("Revenue"),
-                                        industry=c_dict.get("Industry'"),
-                                        company_link=c_dict.get("Link"))
+        company, data_in_db = get_or_create_company(model=Company, name=c_dict.get("name"),
+                                            indeed_company_link=c_dict.get("indeed_company_link"),
+                                            rating=c_dict.get("rating"),
+                                            reviews_number=c_dict.get('reviews-tab'),
+                                            salaries_number=c_dict.get('salaries-tab'),
+                                            jobs_number=c_dict.get('jobs-tab'),
+                                            qna_number=c_dict.get('qna-tab'),
+                                            photos_number=c_dict.get('photos-tab'),
+                                            work_happiness_score=c_dict.get('Work Happiness Score'),
+                                            ceo=c_dict.get("CEO"),
+                                            approved_percentage=c_dict.get("Approved"),
+                                            founded_year=c_dict.get("Founded"),
+                                            size=c_dict.get("Company size"),
+                                            revenue=c_dict.get("Revenue"),
+                                            industry=c_dict.get("Industry'"),
+                                            company_link=c_dict.get("Link"))
 
         indeed_company_links_dic[c_dict["indeed_company_link"]] = company.id  ### to solve
         # session.add(company)
         if data_in_db == 1:
             num_duplicates_company += 1
-        else:
+        elif data_in_db == 0:
             num_added_company += 1
+        else:
+            num_updated_company += 1
 
     session.commit()
 
@@ -248,7 +289,9 @@ def update_mysql_db(job_list, company_list):
         except TypeError:  ### todo check
             comp_id = 1
 
-        job, data_in_db = get_or_create(model=Job, company_id=comp_id,
+        job, data_in_db = get_or_create(model=Job,
+                                        company_id=comp_id,
+                                        searched_title=j_dict.get("searched_title"),
                                         title=j_dict.get("title"),
                                         summary=j_dict.get("summary"),
                                         indeed_company_link=j_dict.get("indeed_company_link"))
@@ -267,10 +310,9 @@ def update_mysql_db(job_list, company_list):
                                   salary=j_dict.get("salary"),
                                   location=j_dict.get("location"))
             session.add(condition)
-            num_added_job+= 1
+            num_added_job += 1
         else:
             num_duplicates_job += 1
-
 
     session.commit()
     session.close()
@@ -279,3 +321,4 @@ def update_mysql_db(job_list, company_list):
     print(f"{num_duplicates_job} jobs duplicates found. Those were not added to the database")
     print(f"{num_added_company} new companies were added to the database")
     print(f"{num_duplicates_company} companies duplicates found. Those were not added to the database")
+    print(f"{num_updated_company} companies were updated with new information")
