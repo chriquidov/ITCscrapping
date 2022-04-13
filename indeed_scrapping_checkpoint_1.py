@@ -6,6 +6,7 @@ import conf
 from extract_funcs import extract, extract_companies_soup
 from transform_funcs import transform_comp_soups, transform_job_offers
 from update_mysql_db import update_mysql_db
+from api_extract_funcs import getjobs_from_careerjet_api
 
 """
 Web Scraping for Indeed.com; Returns  jobs and their meta-data
@@ -49,6 +50,9 @@ def main():
     soup_list_jobs = extract(number_of_scrap_conv, job_title_url_format, location_url_format)
     for soup in tqdm(soup_list_jobs):
         transform_job_offers(soup, joblist, comp_list, job_title)
+    print(f'{len(joblist)} jobs imported from indeed')
+    getjobs_from_careerjet_api(joblist,comp_list,job_title,location)
+    print(f'{len(joblist)} jobs imported in total')
 
     soup_companies = extract_companies_soup(comp_list)
     transform_comp_soups(soup_companies, comp_list)

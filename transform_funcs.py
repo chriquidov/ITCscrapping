@@ -19,7 +19,7 @@ def isfloat(num):
         return False
 
 
-def transform_job_offers(soup, joblist, comp_link_list, job_title):
+def transform_job_offers(soup: object, joblist: object, comp_link_list: object, job_title: object) -> object:
     """
     Extract html content from page number "page"
     :param job_title: the job title searched by the user
