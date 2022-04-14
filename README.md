@@ -76,6 +76,6 @@ It is part of the Israel Tech Challenge first project.
 
 
 
-![N|Solid](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQypgIpsSV7mTbOAPAwGwxJ3o0n5lZTelnfeQ&usqp=CAU) ![N|Solid](https://i.pinimg.com/originals/8a/c6/6b/8ac66b8b69031605b3c8fad50fdaf4cc.jpg)
+![N|Solid](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQypgIpsSV7mTbOAPAwGwxJ3o0n5lZTelnfeQ&usqp=CAU) ![N|Solid](https://i.pinimg.com/originals/8a/c6/6b/8ac66b8b69031605b3c8fad50fdaf4cc.jpg) ![N|Solid](http://www.analyticshero.com/wp-content/uploads/2012/10/data_story.jpg)
 
 
