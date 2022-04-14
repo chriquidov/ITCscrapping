@@ -7,16 +7,17 @@
 
 ## Project purpose 
 ---
-In this project we tried to extract as much data as possible from the website [Indeed](https://www.indeed.com/jobs?q=Data%20Scientist&l=United%20States&vjk=92ecfcf3e426868a), in which one can find a big amount of job offers, including lots of information regarding his own profession.
+In this project we tried to extract as much data as possible from the website [Indeed](https://www.indeed.com/jobs?q=Data%20Scientist&l=United%20States&vjk=92ecfcf3e426868a), in which one can find a big amount of job offers, including lots of information regarding his own profession. We also used an API from CarreerJet to feed more jobs. All the found jobs and meta-data can be stored in a MySql database.
 
 ## Results
 ---
 The Scrapper is now able to be worked from the command line, scrapping:
 - Job offers corresponding to a specific title entered by the user, scrapping the number of job offers required by the user
+An answer to a prompt can allow the use of the API from CarreerJet for more Job findings.
 
  ### 1. Information gathered for each job offer:
 -	Title
--	Company
+- Company
 -	Location
 -	Salary (in dollar per year - if provided by the company)
 -	Job Type (Full-Time, part-time, etc… - if provided by the company)
@@ -55,17 +56,21 @@ Once the repository cloned, running the ```indeed_scrapping_checkpoint_1.py``` f
 
 Example of use: 
 ```bash
- python indeed_scrapping_checkpoint_1.py "data scientist" 50 
+ python indeed_scrapping_checkpoint_1.py "data scientist" 50
 ```
 *In this case the program will scrape the data for at least 50 data scientist job offers in the US* 
+
+After the scrapping is completed, you will be asked how many jobs you to import from the CareerJet API. If you dont to use this feature you can answer 0.
 
 #### 2. Creation of the MYSQL database
 In order to get the data stored in a proper database, the user needs to install mysql, create a user name and a password, by default the program allocates the following as default: 'DATABASE_USER': 'root','DATABASE_PASSWORD': "pass",'DATABASE_PORT': '3306',"DATABASE_NAME": 'indeed_db','DATABASE_HOST': 'localhost'. If the user has made a different configuration, he's invited to modify the ```db_parameters.py``` file in order to make sure the connection with Mysql is made and the Data Base can be created.
 
  ## Roadmap
-This is the second of four checkpoints in total. 
+This is the third of four checkpoints in total.
 
 ## Authors and acknowledgement 
+Credit to CareerJet - For more information follow the link: https://pypi.org/project/careerjet-api/
+
 The authors of this web scraper are Dov Chriqui and Samuel Nataf.
 It is part of the Israel Tech Challenge first project.
 
