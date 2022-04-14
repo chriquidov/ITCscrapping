@@ -60,7 +60,7 @@ Example of use:
 ```
 *In this case the program will scrape the data for at least 50 data scientist job offers in the US* 
 
-After the scrapping is completed, you will be asked how many jobs you to import from the CareerJet API. If you dont to use this feature you can answer 0.
+After the scrapping is completed, you will be asked how many jobs you want to import from the CareerJet API. If you dont want to use this feature you can answer 0.
 
 #### 2. Creation of the MYSQL database
 In order to get the data stored in a proper database, the user needs to install mysql, create a user name and a password, by default the program allocates the following as default: 'DATABASE_USER': 'root','DATABASE_PASSWORD': "pass",'DATABASE_PORT': '3306',"DATABASE_NAME": 'indeed_db','DATABASE_HOST': 'localhost'. If the user has made a different configuration, he's invited to modify the ```db_parameters.py``` file in order to make sure the connection with Mysql is made and the Data Base can be created.
