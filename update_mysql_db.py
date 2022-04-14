@@ -306,6 +306,7 @@ def insert_companies_and_industry(session, Company, Industry, company_list):
                                                            reviews_number=c_dict.get('reviews-tab'),
                                                            salaries_number=c_dict.get('salaries-tab'),
                                                            jobs_number=c_dict.get('jobs-tab'),
+
                                                            qna_number=c_dict.get('qna-tab'),
                                                            photos_number=c_dict.get('photos-tab'),
                                                            work_happiness_score=c_dict.get('Work Happiness Score'),
