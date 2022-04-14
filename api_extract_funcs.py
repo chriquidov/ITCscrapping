@@ -61,7 +61,7 @@ def add_job_data_to_lists(job_list, comp_list, result_json, job_title):
             'location': j['locations'],
             'salary': transform_salary(j['salary']),
             'job_type': None,
-            'summary': j['description'],
+            'summary': j['description'].replace('<b>','').replace('</b>','').replace('/',''),
             'link_job': j['url'],
             'indeed_company_link': None
         }
