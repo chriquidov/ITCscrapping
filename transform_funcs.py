@@ -149,13 +149,16 @@ def get_link_to_full_description(soup):
     """Param: receives the soup of the page, returns a list of the links to the job offers full description """
     job_column = soup.find('div', class_='mosaic-provider-jobcards')  # gets the column of the job offers
     link_list = []
-    for i in job_column.find_all('a'):
-        try:
-            if i.attrs['id']:
-                abs_path = urljoin(conf.SAMPLE_URL, i.get('href'))
-                link_list.append(abs_path)
-        except (KeyError, AttributeError):
-            pass
+    try:
+        for i in job_column.find_all('a'):
+            try:
+                if i.attrs['id']:
+                    abs_path = urljoin(conf.SAMPLE_URL, i.get('href'))
+                    link_list.append(abs_path)
+            except (KeyError, AttributeError):
+                pass
+    except AttributeError:
+        pass
     return link_list
 
 
