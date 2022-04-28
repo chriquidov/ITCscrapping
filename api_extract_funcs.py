@@ -1,6 +1,7 @@
 from careerjet_api import CareerjetAPIClient
 import conf
 
+
 def getjobs_from_careerjet_api(job_list, comp_list, job_title, location):
     """
     Function gets data from careerjet_api and adds to the list of jobs and companies the data on the jobs in the lists
@@ -39,7 +40,8 @@ def askuser_if_get_from_api():
     nb_jobs_careerjet = 'a'
     while not int_check:
         nb_jobs_careerjet = input(
-            'If you want to get jobs from the careerjet_api enter the minimum number of jobs you want to get else enter 0: ')
+            'If you want to get jobs from the careerjet_api enter the minimum number \
+of jobs you want to get else enter 0: ')
         int_check = isint(nb_jobs_careerjet)
     return int(nb_jobs_careerjet)
 
@@ -61,7 +63,7 @@ def add_job_data_to_lists(job_list, comp_list, result_json, job_title):
             'location': j['locations'],
             'salary': transform_salary(j['salary']),
             'job_type': None,
-            'summary': j['description'].replace('<b>','').replace('</b>','').replace('/',''),
+            'summary': j['description'].replace('<b>', '').replace('</b>', '').replace('/', ''),
             'link_job': j['url'],
             'indeed_company_link': None
         }
@@ -81,15 +83,18 @@ def isint(s):
     try:
         int(s)
         return True
-    except:
+    except ValueError:
         return False
 
 
 def transform_salary(str_sal):
     sal = ''
-    for i in sal:
-        if i in [' ', '$', '-', '']:
+    print("-" * 200, str_sal)
+    for i in str_sal:
+        if i in [' ', '-', '']:
             break
+        elif i in ['$']:
+            continue
         elif i.isdigit():
             sal += i
     if sal.isdigit():

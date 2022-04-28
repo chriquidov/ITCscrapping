@@ -1,4 +1,3 @@
-import pandas as pd
 import argparse
 import urllib.parse
 from tqdm import tqdm
@@ -51,7 +50,7 @@ def main():
     for soup in tqdm(soup_list_jobs):
         transform_job_offers(soup, joblist, comp_list, job_title)
     print(f'{len(joblist)} jobs imported from indeed')
-    getjobs_from_careerjet_api(joblist,comp_list,job_title,location)
+    getjobs_from_careerjet_api(joblist, comp_list, job_title, location)
     print(f'{len(joblist)} jobs imported in total')
 
     soup_companies = extract_companies_soup(comp_list)
@@ -61,7 +60,6 @@ def main():
     print(f"Scrapping completed successfully: {len(comp_list)} companies imported ")
 
     update_mysql_db(job_list=joblist, company_list=comp_list)
-
 
 
 if __name__ == '__main__':

@@ -19,7 +19,7 @@ def isfloat(num):
         return False
 
 
-def transform_job_offers(soup: object, joblist: object, comp_link_list: object, job_title: object) -> object:
+def transform_job_offers(soup, joblist, comp_link_list, job_title):
     """
     Extract html content from page number "page"
     :param job_title: the job title searched by the user
@@ -80,7 +80,7 @@ def get_job_title(item):
         returns the job title of the specific job offer if exists"""
     try:
         return item.find('h2', class_='jobTitle').text
-    except (AttributeError):
+    except AttributeError:
         return None
 
 
@@ -222,25 +222,25 @@ def get_about_comp(soup):
     try:
         about = soup.find('ul', class_="css-1vd66n9 e37uo190")
         # add CEO name and approval rate
-        about_comp[about.find('span', class_="css-3j50sk e1wnkr790").text] = about.find('span',
-                                                                                        class_="css-1w0iwyp e1wnkr790").text
+        about_comp[about.find('span', class_="css-3j50sk e1wnkr790").text] = \
+            about.find('span', class_="css-1w0iwyp e1wnkr790").text
         about_comp['Approved'] = int(about.find('span', class_="css-4oitjw e1wnkr790").text.replace('%', ''))
         # add other elements
         for i in about.find_all('li', class_="css-ion97 e37uo190"):
             if i.find('div', class_="css-18pwhsj e1wnkr790").text == 'Founded':
-                about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = int(i.find('div',
-                                                                                            class_="css-1w0iwyp e1wnkr790").text)
+                about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = \
+                    int(i.find('div', class_="css-1w0iwyp e1wnkr790").text)
             elif i.find('div', class_="css-18pwhsj e1wnkr790").text == 'Company size':
                 if i.find('div', class_="css-1w0iwyp e1wnkr790").text in comp_size:
-                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = comp_size[i.find('div',
-                                                                                                      class_="css-1w0iwyp e1wnkr790").text]
+                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = \
+                        comp_size[i.find('div', class_="css-1w0iwyp e1wnkr790").text]
                 else:
                     about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = -999999
 
             elif i.find('div', class_="css-18pwhsj e1wnkr790").text == 'Revenue':
                 if i.find('div', class_="css-1w0iwyp e1wnkr790").text in comp_revenues.keys():
-                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = comp_revenues[i.find('div',
-                                                                                                          class_="css-1w0iwyp e1wnkr790").text]
+                    about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = \
+                        comp_revenues[i.find('div', class_="css-1w0iwyp e1wnkr790").text]
                 else:
                     about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = -999999
 
@@ -249,8 +249,8 @@ def get_about_comp(soup):
                 about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = link.find(href=True).get('href')
 
             else:
-                about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = i.find('div',
-                                                                                        class_="css-1w0iwyp e1wnkr790").text
+                about_comp[i.find('div', class_="css-18pwhsj e1wnkr790").text] = \
+                    i.find('div', class_="css-1w0iwyp e1wnkr790").text
     except AttributeError:
         pass
     return about_comp
