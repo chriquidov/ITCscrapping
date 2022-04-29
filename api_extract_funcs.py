@@ -89,7 +89,6 @@ def isint(s):
 
 def transform_salary(str_sal):
     sal = ''
-    print("-" * 200, str_sal)
     for i in str_sal:
         if i in [' ', '-', '']:
             break

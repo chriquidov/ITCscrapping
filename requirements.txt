@@ -1,10 +1,11 @@
 ﻿beautifulsoup4
 bs4
 cryptography
-grequests
+requests
 pandas
 PyMySQL
 SQLAlchemy
 tqdm
 sqlalchemy_utils
 careerjet_api
+scraperapi-sdk
