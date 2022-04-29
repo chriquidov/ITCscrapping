@@ -18,7 +18,7 @@ def extract(number_of_scraps_conv, job_title_url_format='', location_url_format=
     url_list = [f'https://www.indeed.com/jobs?q={job_title_url_format}&l={location_url_format}&start={page}' for page in
                 range(0, number_of_scraps_conv, 10)]
     rs = [client.get(url) for url in url_list]
-    [print(r.status_code) for r in rs]
+
     soups = [BeautifulSoup(response.content, 'html.parser') for response in rs]
     return soups
 
