@@ -2,7 +2,7 @@ from careerjet_api import CareerjetAPIClient
 import conf
 
 
-def getjobs_from_careerjet_api(job_list, comp_list, job_title, location):
+def getjobs_from_careerjet_api(job_list, comp_list, job_title, location, api_nb):
     """
     Function gets data from careerjet_api and adds to the list of jobs and companies the data on the jobs in the lists
     :param job_list: list of jobs form indeed scrapping
@@ -11,7 +11,7 @@ def getjobs_from_careerjet_api(job_list, comp_list, job_title, location):
     :param location: location of job
     :return:
     """
-    nb_jobs = askuser_if_get_from_api()
+    nb_jobs = api_nb
     if nb_jobs <= 0:
         return
     else:
